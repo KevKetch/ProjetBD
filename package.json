@@ -4,7 +4,12 @@
   "description": "API REST pour gestion école primaire (module élèves)",
   "main": "src/server.js",
   "scripts": {
-    "test": "jest --runInBand --forceExit"
+    "start": "node src/serveur.js",
+    "dev": "nodemon src/serveur.js",
+    "test": "jest --runInBand --forceExit",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:seed": "sequelize-cli db:seed:all",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo:all"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -17,6 +22,7 @@
     "helmet": "^7.0.0",
     "joi": "^17.9.2",
     "jsonwebtoken": "^9.0.0",
+    "mysql2": "^3.22.6",
     "nodemailer": "^6.9.1",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",

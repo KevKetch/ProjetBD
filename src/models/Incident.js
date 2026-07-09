@@ -11,19 +11,64 @@ module.exports = (sequelize) => {
   }
 
   Incident.init({
-    date: DataTypes.DATE,
-    description: DataTypes.TEXT,
+    date: {
+      type: DataTypes.DATE,
+      field: 'event_date'
+    },
+    description: {
+      type: DataTypes.TEXT,
+      field: 'commentaire'
+    },
     gravite: {
       type: DataTypes.INTEGER,
+      field: 'points',
       validate: { min: 1, max: 5 },
     },
-    statut: {
-      type: DataTypes.ENUM('signale', 'traite', 'clos'),
-      defaultValue: 'signale',
+    eleve_matricule: {
+      type: DataTypes.INTEGER,
+      field: 'matricule',
+      allowNull: false,
+      get() {
+        const id = this.getDataValue('eleve_matricule');
+        if (!id) return null;
+        const year = this.getDataValue('created_at')
+          ? new Date(this.getDataValue('created_at')).getFullYear()
+          : new Date().getFullYear();
+        return `MAT-${year}-${String(id).padStart(3, '0')}`;
+      },
+      set(val) {
+        if (typeof val === 'string' && val.includes('-')) {
+          const parts = val.split('-');
+          const id = parseInt(parts[parts.length - 1], 10);
+          if (!isNaN(id)) {
+            this.setDataValue('eleve_matricule', id);
+          }
+        } else {
+          this.setDataValue('eleve_matricule', val);
+        }
+      }
     },
+    type_incident_id: {
+      type: DataTypes.INTEGER,
+      field: 'libelle',
+      allowNull: false
+    },
+    enseignant_id: {
+      type: DataTypes.INTEGER,
+      field: 'idPers',
+      allowNull: false
+    },
+    idAnnee: {
+      type: DataTypes.INTEGER,
+      field: 'idAnnee',
+      defaultValue: 1
+    }
   }, {
     sequelize,
     modelName: 'Incident',
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
 
   return Incident;

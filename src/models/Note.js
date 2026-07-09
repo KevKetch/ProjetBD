@@ -11,16 +11,29 @@ module.exports = (sequelize) => {
   }
 
   Note.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      field: 'idNote'
+    },
     valeur: {
       type: DataTypes.DECIMAL(4, 2),
       allowNull: false,
+      field: 'note',
       validate: { min: 0, max: 20 },
     },
     appreciation: DataTypes.STRING,
-    date_saisie: DataTypes.DATEONLY,
+    date_saisie: {
+      type: DataTypes.DATEONLY,
+      field: 'created_at'
+    },
   }, {
     sequelize,
     modelName: 'Note',
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
 
   return Note;

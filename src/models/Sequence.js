@@ -9,6 +9,12 @@ module.exports = (sequelize) => {
   }
 
   Sequence.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      field: 'idSequence'
+    },
     libelle: DataTypes.STRING,
     date_debut: DataTypes.DATEONLY,
     date_fin: DataTypes.DATEONLY,

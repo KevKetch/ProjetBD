@@ -3,16 +3,43 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Parent extends Model {
     static associate(models) {
-      this.belongsTo(models.User, { foreignKey: 'user_id' });
-      this.hasMany(models.Eleve, { foreignKey: 'parent_id' });
+      this.belongsTo(models.Eleve, { foreignKey: 'matricule', targetKey: 'matricule' });
     }
   }
 
   Parent.init({
-    nom: DataTypes.STRING,
-    prenom: DataTypes.STRING,
-    telephone: DataTypes.STRING,
-    email: DataTypes.STRING,
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      field: 'idParent'
+    },
+    nom: {
+      type: DataTypes.VIRTUAL,
+      get() { return this.getDataValue('nom') || 'Parent'; }
+    },
+    prenom: {
+      type: DataTypes.VIRTUAL,
+      get() { return this.getDataValue('prenom') || ''; }
+    },
+    telephone: {
+      type: DataTypes.VIRTUAL,
+      get() { return this.getDataValue('telephone') || ''; }
+    },
+    email: {
+      type: DataTypes.VIRTUAL,
+      get() { return this.getDataValue('email') || ''; }
+    },
+    idPers: {
+      type: DataTypes.INTEGER,
+      field: 'idPers',
+      defaultValue: 1
+    },
+    idAdmin: {
+      type: DataTypes.INTEGER,
+      field: 'idAdmin',
+      defaultValue: 1
+    }
   }, {
     sequelize,
     modelName: 'Parent',

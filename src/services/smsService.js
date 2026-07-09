@@ -1,9 +1,25 @@
 const twilio = require('twilio');
 
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+let client;
+const getTwilioClient = () => {
+  if (client) return client;
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  if (!sid || !token) {
+    console.warn('[Twilio] Identifiants manquants (TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN). Les SMS seront simulés.');
+    return null;
+  }
+  client = twilio(sid, token);
+  return client;
+};
 
 exports.sendSms = async ({ to, message }) => {
-  return client.messages.create({
+  const twClient = getTwilioClient();
+  if (!twClient) {
+    console.log(`[SMS Simulé] Pour: ${to} | Message: ${message}`);
+    return { sid: 'mock_sid_success' };
+  }
+  return twClient.messages.create({
     body: message,
     from: process.env.TWILIO_PHONE_NUMBER,
     to,
