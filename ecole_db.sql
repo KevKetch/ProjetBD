@@ -1,965 +1,669 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Generation Time: Jul 09, 2026 at 09:23 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- ================================================================
+-- MERGED DATABASE: Ecole Les Étoiles
+-- Combines ecole_db.sql + schema.sql
+-- ================================================================
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Database: `ecole_db`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `admin`
---
-
-CREATE TABLE `admin` (
-  `ID` int(11) NOT NULL,
-  `nom` varchar(100) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `actif` tinyint(4) NOT NULL DEFAULT 1,
-  `typeAdmin` smallint(6) NOT NULL,
-  `mobile` varchar(15) DEFAULT NULL,
-  `alanyaID` varchar(15) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
+-- ================================================================
+-- 1. VILLES (from ecole_db)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS villenaissance (
+  idVille INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nomVille VARCHAR(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `admin`
---
-
-INSERT INTO `admin` (`ID`, `nom`, `username`, `password`, `actif`, `typeAdmin`, `mobile`, `alanyaID`, `created_at`) VALUES
-(1, 'Administrateur', 'admin@ecole.cm', '$2a$10$yoJKEm19fx9/k68bDLIOdO7.dZW4sNZ1M9jMc7b3h/k9gpRKyjjLG', 1, 3, '000000000', '000000000', '2026-07-09 05:01:34'),
-(2, 'Thomas Fouda', 'thomas.fouda@parent.ecole.cm', '$2a$10$VEvBspHjlph3oSeGOosu4O.xh4EsDDej7R2pL9xOGoCgB.O9Lu7Ti', 1, 5, NULL, NULL, '2026-07-09 07:30:11'),
-(3, 'Joseph Mbarga', 'joseph.mbarga@parent.ecole.cm', '$2a$10$VEvBspHjlph3oSeGOosu4O.xh4EsDDej7R2pL9xOGoCgB.O9Lu7Ti', 1, 5, NULL, NULL, '2026-07-09 07:30:11'),
-(4, 'Albert Nkomo', 'albert.nkomo@parent.ecole.cm', '$2a$10$VEvBspHjlph3oSeGOosu4O.xh4EsDDej7R2pL9xOGoCgB.O9Lu7Ti', 1, 5, NULL, NULL, '2026-07-09 07:30:11'),
-(5, 'Gabriel Mbom', 'gabriel.mbom@parent.ecole.cm', '$2a$10$ZVE4xk1Q6Oe3WuUXo0roqOOX/EqMsz6mdKs1qNX2Cb80ldpNLljOK', 1, 5, '691366621', NULL, '2026-07-09 07:30:11'),
-(6, 'Magarette Nsoh', 'magarette.nsoh@parent.ecole.cm', '$2a$10$VEvBspHjlph3oSeGOosu4O.xh4EsDDej7R2pL9xOGoCgB.O9Lu7Ti', 1, 5, NULL, NULL, '2026-07-09 07:30:11'),
-(7, 'Parent Test', 'testparent@gmail.com', '$2a$10$RHbAbBmwpMBccfsviPIPAOj4aami8RdmTQGLvDdXpK5Xg7Oi27D66', 1, 5, '699000111', NULL, '2026-07-09 07:08:27'),
-(8, 'Leo Sanja', 'sanjaleo@gmail.com', '$2a$10$/kHz/7d416EmFOLhpvdIc.Q/LbPAy4BSsMWhTD8T8/05z1fEcls4O', 1, 5, '691366621', NULL, '2026-07-09 07:10:57');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `anneeacademique`
---
-
-CREATE TABLE `anneeacademique` (
-  `idAnnee` int(11) NOT NULL,
-  `libelle` varchar(100) NOT NULL,
-  `periode` varchar(100) DEFAULT NULL,
-  `idAdmin` int(11) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `anneeacademique`
---
-
-INSERT INTO `anneeacademique` (`idAnnee`, `libelle`, `periode`, `idAdmin`, `created_at`) VALUES
-(1, '2025-2026', 'Septembre 2025 - Juin 2026', 1, '2026-07-09 05:01:42');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `bulletins`
---
-
-CREATE TABLE `bulletins` (
-  `id` int(11) NOT NULL,
-  `matricule` int(11) NOT NULL,
-  `idSequence` int(11) NOT NULL,
-  `moyenne_generale` float DEFAULT NULL,
-  `appreciation` text DEFAULT NULL,
-  `pdf_path` varchar(255) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `classes`
---
-
-CREATE TABLE `classes` (
-  `idClasse` int(11) NOT NULL,
-  `libelle` varchar(100) NOT NULL,
-  `idCycle` int(11) NOT NULL,
-  `idAdmin` int(11) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `classes`
---
-
-INSERT INTO `classes` (`idClasse`, `libelle`, `idCycle`, `idAdmin`, `created_at`, `updated_at`) VALUES
-(1, 'SIL A', 1, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(2, 'CP A', 1, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(3, 'CE1 A', 1, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(4, 'CE2 A', 1, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(5, 'CM1 A', 1, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(6, 'CM2 A', 1, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(7, 'CLASS 6A', 1, 1, '2026-07-09 05:42:36', '2026-07-09 05:42:36'),
-(8, 'CLASS 6B', 1, 1, '2026-07-09 07:07:55', '2026-07-09 07:07:55');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `cycle`
---
-
-CREATE TABLE `cycle` (
-  `idCycle` int(11) NOT NULL,
-  `libelle` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `cycle`
---
-
-INSERT INTO `cycle` (`idCycle`, `libelle`) VALUES
-(1, 'Cycle Francophone'),
-(2, 'Cycle Anglophone');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `eleves`
---
-
-CREATE TABLE `eleves` (
-  `matricule` int(11) NOT NULL,
-  `nom` varchar(60) NOT NULL,
-  `prenom` varchar(60) DEFAULT NULL,
-  `dateNaissance` date DEFAULT NULL,
-  `lieuNaissance` varchar(30) DEFAULT NULL,
-  `sexe` smallint(6) DEFAULT NULL,
-  `langue` varchar(30) DEFAULT NULL,
-  `photoURL` varchar(255) DEFAULT NULL,
-  `actif` tinyint(4) DEFAULT 1,
-  `idVilleNaissance` int(11) DEFAULT NULL,
-  `idAdmin` int(11) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp(),
-  `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `eleves`
---
-
-INSERT INTO `eleves` (`matricule`, `nom`, `prenom`, `dateNaissance`, `lieuNaissance`, `sexe`, `langue`, `photoURL`, `actif`, `idVilleNaissance`, `idAdmin`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'Fouda', 'Jean', '2016-04-12', 'Yaoundé', 1, '1', NULL, 1, NULL, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43', NULL),
-(2, 'Mbarga', 'Marie', '2016-09-25', 'Douala', 2, '1', NULL, 1, NULL, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43', NULL),
-(3, 'Nkomo', 'Pierre', '2015-02-14', 'Yaoundé', 1, '2', NULL, 1, NULL, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43', NULL),
-(4, 'Sanda', 'Sophie', '2015-07-22', 'Bafoussam', 2, '2', NULL, 1, NULL, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43', NULL),
-(5, 'Mengue', 'Kevin', '2014-11-05', 'Yaoundé', 1, '3', NULL, 1, NULL, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43', NULL),
-(6, 'Mbom', 'Maeva', '2000-11-11', 'Douala', 2, '3', NULL, 1, NULL, 1, '2026-07-09 05:35:00', '2026-07-09 05:35:00', NULL),
-(7, 'Matipa', 'Loic', '2000-04-12', 'Yaoundé', 1, '2', NULL, 1, NULL, 1, '2026-07-09 05:39:08', '2026-07-09 05:39:37', NULL),
-(11, 'Test', 'Inscription', '2015-05-10', 'Douala', 1, '1', NULL, 0, NULL, 1, '2026-07-09 07:08:27', '2026-07-09 07:09:48', NULL),
-(12, 'Sanja ', 'Marc', '2000-11-22', 'Yaoundé', 1, '3', NULL, 1, NULL, 1, '2026-07-09 07:10:57', '2026-07-09 07:10:57', NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `epreuve`
---
-
-CREATE TABLE `epreuve` (
-  `idEpreuve` int(11) NOT NULL,
-  `libelle` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `incidents`
---
-
-CREATE TABLE `incidents` (
-  `id` int(11) NOT NULL,
-  `libelle` varchar(100) NOT NULL,
-  `points` int(11) DEFAULT 0,
-  `matricule` int(11) NOT NULL,
-  `idAnnee` int(11) NOT NULL,
-  `commentaire` text DEFAULT NULL,
-  `event_date` date DEFAULT NULL,
-  `idPers` int(11) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `matieres`
---
-
-CREATE TABLE `matieres` (
-  `idMatiere` int(11) NOT NULL,
-  `libelle` varchar(255) NOT NULL,
-  `coefficient` float DEFAULT 1,
-  `description` text DEFAULT NULL,
-  `idAdmin` int(11) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `matieres`
---
-
-INSERT INTO `matieres` (`idMatiere`, `libelle`, `coefficient`, `description`, `idAdmin`, `created_at`, `updated_at`) VALUES
-(1, 'Mathématiques', 3, 'Calcul, géométrie, opérations', 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(2, 'Français', 3, 'Grammaire, conjugaison, orthographe', 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(3, 'Sciences', 2, 'Éveil scientifique, sciences de la vie', 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(4, 'Histoire-Géographie', 2, 'Histoire et géographie du Cameroun', 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(5, 'Anglais', 1, 'Bilinguisme anglais', 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(6, 'Mathématiques', 1, NULL, 1, '2026-07-09 05:46:19', '2026-07-09 05:46:19');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `notes`
---
-
-CREATE TABLE `notes` (
-  `idNote` int(11) NOT NULL,
-  `note` float NOT NULL,
-  `appreciation` varchar(255) DEFAULT NULL,
-  `matricule` int(11) NOT NULL,
-  `idEpreuve` int(11) NOT NULL,
-  `idMatiere` int(11) NOT NULL,
-  `idSequence` int(11) NOT NULL,
-  `idPers` int(11) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `parents`
---
-
-CREATE TABLE `parents` (
-  `idParent` int(11) NOT NULL,
-  `idPers` int(11) NOT NULL,
-  `matricule` int(11) NOT NULL,
-  `idAdmin` int(11) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `parents`
---
-
-INSERT INTO `parents` (`idParent`, `idPers`, `matricule`, `idAdmin`, `created_at`, `updated_at`) VALUES
-(1, 2, 1, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(2, 3, 2, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(3, 4, 3, 1, '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(4, 5, 6, 1, '2026-07-09 05:35:00', '2026-07-09 05:35:00'),
-(5, 6, 7, 1, '2026-07-09 05:39:08', '2026-07-09 05:39:08'),
-(9, 10, 11, 1, '2026-07-09 07:08:27', '2026-07-09 07:08:27'),
-(10, 11, 12, 1, '2026-07-09 07:10:57', '2026-07-09 07:10:57');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `personne`
---
-
-CREATE TABLE `personne` (
-  `idPers` int(11) NOT NULL,
-  `nom` varchar(100) DEFAULT NULL,
-  `prenom` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `personne`
---
-
-INSERT INTO `personne` (`idPers`, `nom`, `prenom`) VALUES
-(1, 'Directeur', 'Général'),
-(2, 'Fouda', 'Thomas'),
-(3, 'Mbarga', 'Joseph'),
-(4, 'Nkomo', 'Albert'),
-(5, 'Mbom', 'Gabriel'),
-(6, 'Nsoh', 'Magarette'),
-(10, 'Test', 'Parent'),
-(11, 'Sanja', 'Leo');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `presences`
---
-
-CREATE TABLE `presences` (
-  `id` int(11) NOT NULL,
-  `matricule` int(11) NOT NULL,
-  `date` date NOT NULL,
-  `statut` enum('present','absent','justifie') NOT NULL,
-  `motif_absence` varchar(255) DEFAULT NULL,
-  `piece_jointe` varchar(255) DEFAULT NULL,
-  `justifiee` tinyint(1) DEFAULT 0,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `retards`
---
-
-CREATE TABLE `retards` (
-  `id` int(11) NOT NULL,
-  `matricule` int(11) NOT NULL,
-  `date` datetime NOT NULL,
-  `duree` int(11) DEFAULT NULL COMMENT 'en minutes',
-  `motif` varchar(255) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `roles`
---
-
-CREATE TABLE `roles` (
-  `id` int(11) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `roles`
---
-
-INSERT INTO `roles` (`id`, `name`, `created_at`, `updated_at`) VALUES
-(1, 'fondateur', '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(2, 'directeur', '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(3, 'admin', '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(4, 'enseignant', '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(5, 'parent', '2026-07-09 05:01:42', '2026-07-09 05:01:42');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `sanctions`
---
-
-CREATE TABLE `sanctions` (
-  `id` int(11) NOT NULL,
-  `incident_id` int(11) NOT NULL,
-  `type_sanction` varchar(100) NOT NULL,
-  `description` text DEFAULT NULL,
-  `date` date DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `sequelizemeta`
---
-
-CREATE TABLE `sequelizemeta` (
-  `name` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `sequelizemeta`
---
-
-INSERT INTO `sequelizemeta` (`name`) VALUES
-('20231231000000-create-base-tables.js'),
-('20240101000000-create-users.js'),
-('20240101000001-create-roles.js'),
-('20240101000002-create-eleves.js'),
-('20240101000003-create-parents.js'),
-('20240101000004-create-classes.js'),
-('20240101000005-create-matieres.js'),
-('20240101000006-create-sequences.js'),
-('20240101000007-create-types-incidents.js'),
-('20240101000008-create-notes.js'),
-('20240101000009-create-incidents.js'),
-('20240101000010-create-presences.js'),
-('20240101000011-create-bulletins.js'),
-('20240101000012-create-sanctions.js'),
-('20240101000013-create-retards.js');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `sequences`
---
-
-CREATE TABLE `sequences` (
-  `idSequence` int(11) NOT NULL,
-  `libelle` varchar(255) NOT NULL,
-  `description` text DEFAULT NULL,
-  `idTrimestre` int(11) NOT NULL,
-  `idPers` int(11) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `sequences`
---
-
-INSERT INTO `sequences` (`idSequence`, `libelle`, `description`, `idTrimestre`, `idPers`, `created_at`, `updated_at`) VALUES
-(1, 'Séquence 1 - T1', 'Première séquence du trimestre 1', 1, 1, '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(2, 'Séquence 2 - T1', 'Deuxième séquence du trimestre 1', 1, 1, '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(3, 'Séquence 1 - T2', 'Première séquence du trimestre 2', 2, 1, '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(4, 'Séquence 2 - T2', 'Deuxième séquence du trimestre 2', 2, 1, '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(5, 'Séquence 1 - T3', 'Première séquence du trimestre 3', 3, 1, '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(6, 'Séquence 2 - T3', 'Deuxième séquence du trimestre 3', 3, 1, '2026-07-09 05:01:42', '2026-07-09 05:01:42');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `trimestre`
---
-
-CREATE TABLE `trimestre` (
-  `idTrimes` int(11) NOT NULL,
-  `libelle` varchar(100) NOT NULL,
-  `periode` varchar(100) DEFAULT NULL,
-  `idAca` int(11) DEFAULT NULL,
-  `idAdmin` int(11) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `trimestre`
---
-
-INSERT INTO `trimestre` (`idTrimes`, `libelle`, `periode`, `idAca`, `idAdmin`, `created_at`) VALUES
-(1, 'Trimestre 1', 'Sept - Nov', 1, 1, '2026-07-09 05:01:42'),
-(2, 'Trimestre 2', 'Déc - Fév', 1, 1, '2026-07-09 05:01:42'),
-(3, 'Trimestre 3', 'Mar - Juin', 1, 1, '2026-07-09 05:01:42');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `typeincidents`
---
-
-CREATE TABLE `typeincidents` (
-  `id` int(11) NOT NULL,
-  `nom` varchar(100) NOT NULL,
-  `description` text DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `typeincidents`
---
-
-INSERT INTO `typeincidents` (`id`, `nom`, `description`, `created_at`, `updated_at`) VALUES
-(1, 'Retard', 'Arrivée en retard en classe', '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(2, 'Insolence', 'Manque de respect envers un enseignant', '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(3, 'Bagarre', 'Conflit physique avec un autre élève', '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(4, 'Dégradation', 'Détérioration de matériel ou de locaux', '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(5, 'Absence injustifiée', 'Absence non justifiée', '2026-07-09 05:01:42', '2026-07-09 05:01:42'),
-(6, 'Autre', 'Autre type d\'incident', '2026-07-09 05:01:42', '2026-07-09 05:01:42');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `userroles`
---
-
-CREATE TABLE `userroles` (
-  `UserId` int(11) DEFAULT NULL,
-  `RoleId` int(11) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `nom` varchar(100) DEFAULT NULL,
-  `prenom` varchar(100) DEFAULT NULL,
-  `actif` tinyint(4) DEFAULT 1,
-  `typeAdmin` smallint(6) DEFAULT 2,
-  `mobile` varchar(15) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `email`, `password`, `nom`, `prenom`, `actif`, `typeAdmin`, `mobile`, `created_at`, `updated_at`) VALUES
-(1, 'directeur@ecole.cm', '$2a$10$bh1r/YDGi4r0tITjr6MQje2hEDcavY/zJNpCsldZb/rl6Xd1dRCH.', 'Tchamba', 'Rose', 1, 2, '677001122', '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(2, 'fondateur@ecole.cm', '$2a$10$bh1r/YDGi4r0tITjr6MQje2hEDcavY/zJNpCsldZb/rl6Xd1dRCH.', 'Kamga', 'Emmanuel', 1, 1, '699887766', '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(3, 'enseignant@ecole.cm', '$2a$10$bh1r/YDGi4r0tITjr6MQje2hEDcavY/zJNpCsldZb/rl6Xd1dRCH.', 'Nkomo', 'Albert', 1, 4, '655443322', '2026-07-09 05:01:43', '2026-07-09 05:01:43'),
-(4, 'parent@ecole.cm', '$2a$10$bh1r/YDGi4r0tITjr6MQje2hEDcavY/zJNpCsldZb/rl6Xd1dRCH.', 'Ebongue', 'Marie', 1, 5, '676543210', '2026-07-09 05:01:43', '2026-07-09 05:01:43');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `villenaissance`
---
-
-CREATE TABLE `villenaissance` (
-  `idVille` int(11) NOT NULL,
-  `nomVille` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `villenaissance`
---
-
-INSERT INTO `villenaissance` (`idVille`, `nomVille`) VALUES
+INSERT INTO villenaissance (idVille, nomVille) VALUES
 (1, 'Yaoundé'),
 (2, 'Douala'),
 (3, 'Bafoussam');
 
---
--- Indexes for dumped tables
---
+-- ================================================================
+-- 2. ADMIN / USERS (from ecole_db + schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS admin (
+  ID INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nom VARCHAR(100) NOT NULL,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  actif TINYINT(4) NOT NULL DEFAULT 1,
+  typeAdmin SMALLINT(6) NOT NULL,
+  mobile VARCHAR(15) DEFAULT NULL,
+  alanyaID VARCHAR(15) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `admin`
---
-ALTER TABLE `admin`
-  ADD PRIMARY KEY (`ID`),
-  ADD UNIQUE KEY `username` (`username`);
+-- Users (new schema style with person_id)
+CREATE TABLE IF NOT EXISTS users (
+  id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  person_id INT(11) NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  username VARCHAR(80) NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('admin','directeur','fondateur','enseignant','parent') NOT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  last_login_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at DATETIME NULL,
+  -- Keep old fields for compatibility
+  nom VARCHAR(100) NULL,
+  prenom VARCHAR(100) NULL,
+  actif TINYINT(4) DEFAULT 1,
+  typeAdmin SMALLINT(6) DEFAULT 2,
+  mobile VARCHAR(15) NULL,
+  CONSTRAINT fk_users_person FOREIGN KEY (person_id) REFERENCES personne(idPers) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `anneeacademique`
---
-ALTER TABLE `anneeacademique`
-  ADD PRIMARY KEY (`idAnnee`),
-  ADD KEY `idAdmin` (`idAdmin`);
+-- ================================================================
+-- 3. PERSONNE (from ecole_db)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS personne (
+  idPers INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nom VARCHAR(100) DEFAULT NULL,
+  prenom VARCHAR(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `bulletins`
---
-ALTER TABLE `bulletins`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `matricule` (`matricule`),
-  ADD KEY `idSequence` (`idSequence`);
+-- ================================================================
+-- 4. ROLES (from ecole_db + schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS roles (
+  id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL UNIQUE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `classes`
---
-ALTER TABLE `classes`
-  ADD PRIMARY KEY (`idClasse`),
-  ADD KEY `idCycle` (`idCycle`),
-  ADD KEY `idAdmin` (`idAdmin`);
+INSERT INTO roles (id, name) VALUES
+(1, 'fondateur'),
+(2, 'directeur'),
+(3, 'admin'),
+(4, 'enseignant'),
+(5, 'parent');
 
---
--- Indexes for table `cycle`
---
-ALTER TABLE `cycle`
-  ADD PRIMARY KEY (`idCycle`);
+CREATE TABLE IF NOT EXISTS userroles (
+  UserId INT(11) DEFAULT NULL,
+  RoleId INT(11) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_ur_user FOREIGN KEY (UserId) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_ur_role FOREIGN KEY (RoleId) REFERENCES roles(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `eleves`
---
-ALTER TABLE `eleves`
-  ADD PRIMARY KEY (`matricule`),
-  ADD KEY `idVilleNaissance` (`idVilleNaissance`),
-  ADD KEY `idAdmin` (`idAdmin`);
+-- ================================================================
+-- 5. REFRESH TOKENS (from schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  token_hash VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  revoked_at DATETIME NULL,
+  CONSTRAINT fk_rt_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
---
--- Indexes for table `epreuve`
---
-ALTER TABLE `epreuve`
-  ADD PRIMARY KEY (`idEpreuve`);
+-- ================================================================
+-- 6. ANNEES SCOLAIRES (from ecole_db + schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS anneeacademique (
+  idAnnee INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  libelle VARCHAR(100) NOT NULL,
+  periode VARCHAR(100) DEFAULT NULL,
+  idAdmin INT(11) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_aa_admin FOREIGN KEY (idAdmin) REFERENCES admin(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `incidents`
---
-ALTER TABLE `incidents`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `matricule` (`matricule`),
-  ADD KEY `idAnnee` (`idAnnee`),
-  ADD KEY `idPers` (`idPers`);
+-- school_years (new schema style)
+CREATE TABLE IF NOT EXISTS school_years (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(20) NOT NULL UNIQUE,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
 
---
--- Indexes for table `matieres`
---
-ALTER TABLE `matieres`
-  ADD PRIMARY KEY (`idMatiere`),
-  ADD KEY `idAdmin` (`idAdmin`);
+-- ================================================================
+-- 7. CYCLES / CLASSES (from ecole_db)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS cycle (
+  idCycle INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  libelle VARCHAR(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `notes`
---
-ALTER TABLE `notes`
-  ADD PRIMARY KEY (`idNote`),
-  ADD KEY `matricule` (`matricule`),
-  ADD KEY `idEpreuve` (`idEpreuve`),
-  ADD KEY `idMatiere` (`idMatiere`),
-  ADD KEY `idSequence` (`idSequence`),
-  ADD KEY `idPers` (`idPers`);
+INSERT INTO cycle (idCycle, libelle) VALUES
+(1, 'Cycle Francophone'),
+(2, 'Cycle Anglophone');
 
---
--- Indexes for table `parents`
---
-ALTER TABLE `parents`
-  ADD PRIMARY KEY (`idParent`),
-  ADD KEY `idPers` (`idPers`),
-  ADD KEY `matricule` (`matricule`),
-  ADD KEY `idAdmin` (`idAdmin`);
+CREATE TABLE IF NOT EXISTS classes (
+  idClasse INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  libelle VARCHAR(100) NOT NULL,
+  idCycle INT(11) NOT NULL,
+  idAdmin INT(11) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_classe_cycle FOREIGN KEY (idCycle) REFERENCES cycle(idCycle),
+  CONSTRAINT fk_classe_admin FOREIGN KEY (idAdmin) REFERENCES admin(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `personne`
---
-ALTER TABLE `personne`
-  ADD PRIMARY KEY (`idPers`);
+-- school_classes (new schema style)
+CREATE TABLE IF NOT EXISTS school_classes (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  school_year_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(40) NOT NULL,
+  level ENUM('PS','MS','GS','SIL','CP','CE1','CE2','CM1','CM2') NOT NULL,
+  section ENUM('francophone','anglophone','bilingue') NOT NULL DEFAULT 'francophone',
+  room_id BIGINT UNSIGNED NULL,
+  main_teacher_id BIGINT UNSIGNED NULL,
+  capacity SMALLINT UNSIGNED NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_sc_year FOREIGN KEY (school_year_id) REFERENCES school_years(id) ON DELETE CASCADE,
+  CONSTRAINT fk_sc_room FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE SET NULL,
+  CONSTRAINT fk_sc_teacher FOREIGN KEY (main_teacher_id) REFERENCES teachers(id) ON DELETE SET NULL,
+  UNIQUE KEY uq_sc_name_year (school_year_id, name)
+) ENGINE=InnoDB;
 
---
--- Indexes for table `presences`
---
-ALTER TABLE `presences`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `matricule` (`matricule`);
+-- ================================================================
+-- 8. SALLES (ROOMS) (from schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS rooms (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(40) NOT NULL UNIQUE,
+  capacity SMALLINT UNSIGNED NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
 
---
--- Indexes for table `retards`
---
-ALTER TABLE `retards`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `matricule` (`matricule`);
+-- ================================================================
+-- 9. ENSEIGNANTS (TEACHERS) (from ecole_db + schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS enseignants (
+  id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INT(11) NULL,
+  matricule VARCHAR(30) NOT NULL UNIQUE,
+  specialite VARCHAR(100) NULL,
+  telephone VARCHAR(20) NULL,
+  actif TINYINT(4) DEFAULT 1,
+  idAdmin INT(11) DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_ens_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+  CONSTRAINT fk_ens_admin FOREIGN KEY (idAdmin) REFERENCES admin(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `roles`
---
-ALTER TABLE `roles`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
+-- teachers (new schema style)
+CREATE TABLE IF NOT EXISTS teachers (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  person_id BIGINT UNSIGNED NOT NULL,
+  matricule VARCHAR(30) NOT NULL UNIQUE,
+  date_embauche DATE NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_teachers_person FOREIGN KEY (person_id) REFERENCES personne(idPers) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
---
--- Indexes for table `sanctions`
---
-ALTER TABLE `sanctions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `incident_id` (`incident_id`);
+-- teacher_class_assignments (from schema.sql)
+CREATE TABLE IF NOT EXISTS teacher_class_assignments (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  teacher_id BIGINT UNSIGNED NOT NULL,
+  school_class_id BIGINT UNSIGNED NOT NULL,
+  school_year_id BIGINT UNSIGNED NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_tca_teacher FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+  CONSTRAINT fk_tca_class FOREIGN KEY (school_class_id) REFERENCES school_classes(id) ON DELETE CASCADE,
+  CONSTRAINT fk_tca_year FOREIGN KEY (school_year_id) REFERENCES school_years(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_tca (teacher_id, school_class_id, school_year_id)
+) ENGINE=InnoDB;
 
---
--- Indexes for table `sequelizemeta`
---
-ALTER TABLE `sequelizemeta`
-  ADD PRIMARY KEY (`name`),
-  ADD UNIQUE KEY `name` (`name`);
+-- ================================================================
+-- 10. ELEVES (STUDENTS) (from ecole_db + schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS eleves (
+  matricule INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nom VARCHAR(60) NOT NULL,
+  prenom VARCHAR(60) DEFAULT NULL,
+  dateNaissance DATE DEFAULT NULL,
+  lieuNaissance VARCHAR(30) DEFAULT NULL,
+  sexe SMALLINT(6) DEFAULT NULL,
+  langue VARCHAR(30) DEFAULT NULL,  -- classe_id in new schema
+  photoURL VARCHAR(255) DEFAULT NULL,
+  actif TINYINT(4) DEFAULT 1,
+  idVilleNaissance INT(11) DEFAULT NULL,
+  idAdmin INT(11) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  deleted_at DATETIME DEFAULT NULL,
+  CONSTRAINT fk_eleve_ville FOREIGN KEY (idVilleNaissance) REFERENCES villenaissance(idVille),
+  CONSTRAINT fk_eleve_admin FOREIGN KEY (idAdmin) REFERENCES admin(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `sequences`
---
-ALTER TABLE `sequences`
-  ADD PRIMARY KEY (`idSequence`),
-  ADD KEY `idTrimestre` (`idTrimestre`),
-  ADD KEY `idPers` (`idPers`);
+-- students (new schema style)
+CREATE TABLE IF NOT EXISTS students (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  person_id BIGINT UNSIGNED NOT NULL,
+  matricule VARCHAR(30) NOT NULL UNIQUE,
+  school_class_id BIGINT UNSIGNED NULL,
+  status ENUM('actif','inactif','transfere','diplome') NOT NULL DEFAULT 'actif',
+  enrollment_date DATE NOT NULL,
+  uses_bus TINYINT(1) NOT NULL DEFAULT 0,
+  bus_line VARCHAR(80) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_students_person FOREIGN KEY (person_id) REFERENCES personne(idPers) ON DELETE CASCADE,
+  CONSTRAINT fk_students_class FOREIGN KEY (school_class_id) REFERENCES school_classes(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
 
---
--- Indexes for table `trimestre`
---
-ALTER TABLE `trimestre`
-  ADD PRIMARY KEY (`idTrimes`),
-  ADD KEY `idAca` (`idAca`),
-  ADD KEY `idAdmin` (`idAdmin`);
+-- ================================================================
+-- 11. PARENTS (from ecole_db + schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS parents (
+  idParent INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  idPers INT(11) NOT NULL,
+  matricule INT(11) NOT NULL,
+  idAdmin INT(11) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_parent_person FOREIGN KEY (idPers) REFERENCES personne(idPers),
+  CONSTRAINT fk_parent_eleve FOREIGN KEY (matricule) REFERENCES eleves(matricule),
+  CONSTRAINT fk_parent_admin FOREIGN KEY (idAdmin) REFERENCES admin(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `typeincidents`
---
-ALTER TABLE `typeincidents`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `nom` (`nom`);
+-- parent_students (new schema style)
+CREATE TABLE IF NOT EXISTS parent_students (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  parent_id BIGINT UNSIGNED NOT NULL,
+  student_id BIGINT UNSIGNED NOT NULL,
+  relation ENUM('pere','mere','tuteur') NOT NULL,
+  is_primary TINYINT(1) NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_ps_parent FOREIGN KEY (parent_id) REFERENCES parents(idParent) ON DELETE CASCADE,
+  CONSTRAINT fk_ps_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_parent_student (parent_id, student_id)
+) ENGINE=InnoDB;
 
---
--- Indexes for table `userroles`
---
-ALTER TABLE `userroles`
-  ADD KEY `UserId` (`UserId`),
-  ADD KEY `RoleId` (`RoleId`);
+-- student_class_history (from schema.sql)
+CREATE TABLE IF NOT EXISTS student_class_history (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  student_id BIGINT UNSIGNED NOT NULL,
+  school_class_id BIGINT UNSIGNED NOT NULL,
+  school_year_id BIGINT UNSIGNED NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_sch_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  CONSTRAINT fk_sch_class FOREIGN KEY (school_class_id) REFERENCES school_classes(id) ON DELETE CASCADE,
+  CONSTRAINT fk_sch_year FOREIGN KEY (school_year_id) REFERENCES school_years(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+-- ================================================================
+-- 12. MATIERES (SUBJECTS) (from ecole_db + schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS matieres (
+  idMatiere INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  libelle VARCHAR(255) NOT NULL,
+  coefficient FLOAT DEFAULT 1,
+  description TEXT NULL,
+  idAdmin INT(11) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_matiere_admin FOREIGN KEY (idAdmin) REFERENCES admin(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Indexes for table `villenaissance`
---
-ALTER TABLE `villenaissance`
-  ADD PRIMARY KEY (`idVille`);
+-- subjects (new schema style)
+CREATE TABLE IF NOT EXISTS subjects (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(80) NOT NULL UNIQUE,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
 
---
--- AUTO_INCREMENT for dumped tables
---
+-- class_subjects (from schema.sql)
+CREATE TABLE IF NOT EXISTS class_subjects (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  school_class_id BIGINT UNSIGNED NOT NULL,
+  subject_id BIGINT UNSIGNED NOT NULL,
+  teacher_id BIGINT UNSIGNED NULL,
+  coefficient DECIMAL(4,2) NOT NULL DEFAULT 1.00,
+  order_index TINYINT UNSIGNED NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_cs_class FOREIGN KEY (school_class_id) REFERENCES school_classes(id) ON DELETE CASCADE,
+  CONSTRAINT fk_cs_subject FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+  CONSTRAINT fk_cs_teacher FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE SET NULL,
+  UNIQUE KEY uq_class_subject (school_class_id, subject_id)
+) ENGINE=InnoDB;
 
---
--- AUTO_INCREMENT for table `admin`
---
-ALTER TABLE `admin`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+-- ================================================================
+-- 13. TRIMESTRES / SEQUENCES (from ecole_db)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS trimestre (
+  idTrimes INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  libelle VARCHAR(100) NOT NULL,
+  periode VARCHAR(100) DEFAULT NULL,
+  date_debut DATE NULL,
+  date_fin DATE NULL,
+  ordre TINYINT(4) DEFAULT 1,
+  idAca INT(11) DEFAULT NULL,
+  idAdmin INT(11) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_trim_annee FOREIGN KEY (idAca) REFERENCES anneeacademique(idAnnee),
+  CONSTRAINT fk_trim_admin FOREIGN KEY (idAdmin) REFERENCES admin(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `anneeacademique`
---
-ALTER TABLE `anneeacademique`
-  MODIFY `idAnnee` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+-- terms (new schema style)
+CREATE TABLE IF NOT EXISTS terms (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  school_year_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(40) NOT NULL,
+  order_index TINYINT UNSIGNED NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_terms_year FOREIGN KEY (school_year_id) REFERENCES school_years(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_term_year_order (school_year_id, order_index)
+) ENGINE=InnoDB;
 
---
--- AUTO_INCREMENT for table `bulletins`
---
-ALTER TABLE `bulletins`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+CREATE TABLE IF NOT EXISTS sequences (
+  idSequence INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  libelle VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  idTrimestre INT(11) NOT NULL,
+  date_debut DATE NULL,
+  date_fin DATE NULL,
+  idPers INT(11) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_seq_trimestre FOREIGN KEY (idTrimestre) REFERENCES trimestre(idTrimes),
+  CONSTRAINT fk_seq_person FOREIGN KEY (idPers) REFERENCES personne(idPers)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `classes`
---
-ALTER TABLE `classes`
-  MODIFY `idClasse` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+-- ================================================================
+-- 14. EPREUVES (EXAMS) (from ecole_db + new)
+-- ================================================================
+-- Nature épreuve (new)
+CREATE TABLE IF NOT EXISTS nature_epreuve (
+  idNature INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(20) NOT NULL UNIQUE,
+  libelle VARCHAR(50) NOT NULL,
+  description TEXT NULL,
+  coefficient FLOAT NOT NULL DEFAULT 1.00,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `cycle`
---
-ALTER TABLE `cycle`
-  MODIFY `idCycle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+INSERT INTO nature_epreuve (code, libelle, description, coefficient) VALUES
+('DEVOIR', 'Devoir', 'Devoir surveillé ou à la maison', 1.0),
+('INTERRO', 'Interrogation', 'Interrogation écrite ou orale', 0.5),
+('EXAMEN', 'Examen', 'Examen de fin de trimestre', 2.0),
+('COMPO', 'Composition', 'Composition de fin d\'année', 3.0),
+('TP', 'Travaux Pratiques', 'Travaux pratiques', 1.0);
 
---
--- AUTO_INCREMENT for table `eleves`
---
-ALTER TABLE `eleves`
-  MODIFY `matricule` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+-- Epreuves (new)
+CREATE TABLE IF NOT EXISTS epreuve (
+  idEpreuve INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  idTrimestre INT(11) NOT NULL,
+  idNature INT(11) NOT NULL,
+  idMatiere INT(11) NOT NULL,
+  idClasse INT(11) NOT NULL,
+  idPers INT(11) NOT NULL,
+  titre VARCHAR(200) NOT NULL,
+  description TEXT NULL,
+  duree_minutes SMALLINT(6) NULL,
+  coefficient FLOAT NOT NULL DEFAULT 1.00,
+  total_points DECIMAL(5,2) NOT NULL DEFAULT 20.00,
+  date_epreuve DATE NULL,
+  is_published TINYINT(1) NOT NULL DEFAULT 0,
+  date_publication DATETIME NULL,
+  fichier_sujet VARCHAR(255) NULL,
+  fichier_correction VARCHAR(255) NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at DATETIME NULL,
+  CONSTRAINT fk_epreuve_trimestre FOREIGN KEY (idTrimestre) REFERENCES trimestre(idTrimes) ON DELETE CASCADE,
+  CONSTRAINT fk_epreuve_nature FOREIGN KEY (idNature) REFERENCES nature_epreuve(idNature) ON DELETE RESTRICT,
+  CONSTRAINT fk_epreuve_matiere FOREIGN KEY (idMatiere) REFERENCES matieres(idMatiere) ON DELETE CASCADE,
+  CONSTRAINT fk_epreuve_classe FOREIGN KEY (idClasse) REFERENCES classes(idClasse) ON DELETE CASCADE,
+  CONSTRAINT fk_epreuve_personne FOREIGN KEY (idPers) REFERENCES personne(idPers) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `epreuve`
---
-ALTER TABLE `epreuve`
-  MODIFY `idEpreuve` int(11) NOT NULL AUTO_INCREMENT;
+-- Epreuve notes
+CREATE TABLE IF NOT EXISTS epreuve_notes (
+  id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  idEpreuve INT(11) NOT NULL,
+  matricule INT(11) NOT NULL,
+  note DECIMAL(5,2) NULL,
+  appreciation VARCHAR(255) NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_en_epreuve FOREIGN KEY (idEpreuve) REFERENCES epreuve(idEpreuve) ON DELETE CASCADE,
+  CONSTRAINT fk_en_eleve FOREIGN KEY (matricule) REFERENCES eleves(matricule) ON DELETE CASCADE,
+  UNIQUE KEY uq_epreuve_eleve (idEpreuve, matricule)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `incidents`
---
-ALTER TABLE `incidents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+-- ================================================================
+-- 15. EVALUATIONS / NOTES / BULLETINS (from schema.sql)
+-- ================================================================
+-- grade_components
+CREATE TABLE IF NOT EXISTS grade_components (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  class_subject_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(60) NOT NULL,
+  weight_percent DECIMAL(5,2) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_gc_class_subject FOREIGN KEY (class_subject_id) REFERENCES class_subjects(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
---
--- AUTO_INCREMENT for table `matieres`
---
-ALTER TABLE `matieres`
-  MODIFY `idMatiere` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+-- assessments
+CREATE TABLE IF NOT EXISTS assessments (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  class_subject_id BIGINT UNSIGNED NOT NULL,
+  term_id BIGINT UNSIGNED NOT NULL,
+  component_id BIGINT UNSIGNED NULL,
+  title VARCHAR(120) NOT NULL,
+  type ENUM('devoir','examen','interrogation','tp','autre') NOT NULL DEFAULT 'devoir',
+  date DATE NOT NULL,
+  max_points DECIMAL(5,2) NOT NULL DEFAULT 20.00,
+  created_by_user_id BIGINT UNSIGNED NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_assess_cs FOREIGN KEY (class_subject_id) REFERENCES class_subjects(id) ON DELETE CASCADE,
+  CONSTRAINT fk_assess_term FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE,
+  CONSTRAINT fk_assess_component FOREIGN KEY (component_id) REFERENCES grade_components(id) ON DELETE SET NULL,
+  CONSTRAINT fk_assess_user FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
 
---
--- AUTO_INCREMENT for table `notes`
---
-ALTER TABLE `notes`
-  MODIFY `idNote` int(11) NOT NULL AUTO_INCREMENT;
+-- grades
+CREATE TABLE IF NOT EXISTS grades (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  assessment_id BIGINT UNSIGNED NOT NULL,
+  student_id BIGINT UNSIGNED NOT NULL,
+  score DECIMAL(5,2) NULL,
+  comment VARCHAR(255) NULL,
+  created_by_user_id BIGINT UNSIGNED NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_grades_assessment FOREIGN KEY (assessment_id) REFERENCES assessments(id) ON DELETE CASCADE,
+  CONSTRAINT fk_grades_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  CONSTRAINT fk_grades_user FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+  UNIQUE KEY uq_grade_assessment_student (assessment_id, student_id)
+) ENGINE=InnoDB;
 
---
--- AUTO_INCREMENT for table `parents`
---
-ALTER TABLE `parents`
-  MODIFY `idParent` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+-- notes (from ecole_db)
+CREATE TABLE IF NOT EXISTS notes (
+  idNote INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  note FLOAT NOT NULL,
+  appreciation VARCHAR(255) DEFAULT NULL,
+  matricule INT(11) NOT NULL,
+  idEpreuve INT(11) NOT NULL,
+  idMatiere INT(11) NOT NULL,
+  idSequence INT(11) NOT NULL,
+  idPers INT(11) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_note_eleve FOREIGN KEY (matricule) REFERENCES eleves(matricule),
+  CONSTRAINT fk_note_epreuve FOREIGN KEY (idEpreuve) REFERENCES epreuve(idEpreuve),
+  CONSTRAINT fk_note_matiere FOREIGN KEY (idMatiere) REFERENCES matieres(idMatiere),
+  CONSTRAINT fk_note_sequence FOREIGN KEY (idSequence) REFERENCES sequences(idSequence),
+  CONSTRAINT fk_note_person FOREIGN KEY (idPers) REFERENCES personne(idPers)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `personne`
---
-ALTER TABLE `personne`
-  MODIFY `idPers` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+-- bulletins (from ecole_db)
+CREATE TABLE IF NOT EXISTS bulletins (
+  id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  matricule INT(11) NOT NULL,
+  idSequence INT(11) NOT NULL,
+  moyenne_generale FLOAT DEFAULT NULL,
+  appreciation TEXT DEFAULT NULL,
+  pdf_path VARCHAR(255) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_bul_eleve FOREIGN KEY (matricule) REFERENCES eleves(matricule),
+  CONSTRAINT fk_bul_sequence FOREIGN KEY (idSequence) REFERENCES sequences(idSequence)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `presences`
---
-ALTER TABLE `presences`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+-- report_cards (from schema.sql)
+CREATE TABLE IF NOT EXISTS report_cards (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  student_id BIGINT UNSIGNED NOT NULL,
+  term_id BIGINT UNSIGNED NOT NULL,
+  general_average DECIMAL(5,2) NULL,
+  class_rank SMALLINT UNSIGNED NULL,
+  class_size SMALLINT UNSIGNED NULL,
+  conduct VARCHAR(40) NULL,
+  neatness VARCHAR(40) NULL,
+  punctuality VARCHAR(40) NULL,
+  absences_count SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  lateness_count SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  general_comment VARCHAR(500) NULL,
+  generated_by_user_id BIGINT UNSIGNED NULL,
+  published_at DATETIME NULL,
+  pdf_path VARCHAR(255) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_rc_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  CONSTRAINT fk_rc_term FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE,
+  CONSTRAINT fk_rc_user FOREIGN KEY (generated_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+  UNIQUE KEY uq_rc_student_term (student_id, term_id)
+) ENGINE=InnoDB;
 
---
--- AUTO_INCREMENT for table `retards`
---
-ALTER TABLE `retards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+-- report_card_lines
+CREATE TABLE IF NOT EXISTS report_card_lines (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  report_card_id BIGINT UNSIGNED NOT NULL,
+  class_subject_id BIGINT UNSIGNED NOT NULL,
+  average DECIMAL(5,2) NULL,
+  coefficient DECIMAL(4,2) NOT NULL,
+  teacher_comment VARCHAR(255) NULL,
+  CONSTRAINT fk_rcl_report FOREIGN KEY (report_card_id) REFERENCES report_cards(id) ON DELETE CASCADE,
+  CONSTRAINT fk_rcl_class_subject FOREIGN KEY (class_subject_id) REFERENCES class_subjects(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_rcl (report_card_id, class_subject_id)
+) ENGINE=InnoDB;
 
---
--- AUTO_INCREMENT for table `roles`
---
-ALTER TABLE `roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+-- ================================================================
+-- 16. INCIDENTS / SANCTIONS (from ecole_db)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS typeincidents (
+  id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nom VARCHAR(100) NOT NULL UNIQUE,
+  description TEXT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `sanctions`
---
-ALTER TABLE `sanctions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+INSERT INTO typeincidents (id, nom, description) VALUES
+(1, 'Retard', 'Arrivée en retard en classe'),
+(2, 'Insolence', 'Manque de respect envers un enseignant'),
+(3, 'Bagarre', 'Conflit physique avec un autre élève'),
+(4, 'Dégradation', 'Détérioration de matériel ou de locaux'),
+(5, 'Absence injustifiée', 'Absence non justifiée'),
+(6, 'Autre', 'Autre type d\'incident');
 
---
--- AUTO_INCREMENT for table `sequences`
---
-ALTER TABLE `sequences`
-  MODIFY `idSequence` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+CREATE TABLE IF NOT EXISTS incidents (
+  id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  libelle VARCHAR(100) NOT NULL,
+  points INT(11) DEFAULT 0,
+  matricule INT(11) NOT NULL,
+  idAnnee INT(11) NOT NULL,
+  commentaire TEXT NULL,
+  event_date DATE NULL,
+  idPers INT(11) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_inc_eleve FOREIGN KEY (matricule) REFERENCES eleves(matricule),
+  CONSTRAINT fk_inc_annee FOREIGN KEY (idAnnee) REFERENCES anneeacademique(idAnnee),
+  CONSTRAINT fk_inc_person FOREIGN KEY (idPers) REFERENCES personne(idPers)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `trimestre`
---
-ALTER TABLE `trimestre`
-  MODIFY `idTrimes` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+CREATE TABLE IF NOT EXISTS sanctions (
+  id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  incident_id INT(11) NOT NULL,
+  type_sanction VARCHAR(100) NOT NULL,
+  description TEXT NULL,
+  date DATE DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_sanction_incident FOREIGN KEY (incident_id) REFERENCES incidents(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `typeincidents`
---
-ALTER TABLE `typeincidents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+-- ================================================================
+-- 17. PRESENCES / RETARDS (from ecole_db + schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS presences (
+  id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  matricule INT(11) NOT NULL,
+  date DATE NOT NULL,
+  statut ENUM('present','absent','justifie') NOT NULL,
+  motif_absence VARCHAR(255) DEFAULT NULL,
+  piece_jointe VARCHAR(255) DEFAULT NULL,
+  justifiee TINYINT(1) DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_pres_eleve FOREIGN KEY (matricule) REFERENCES eleves(matricule)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+-- attendances (from schema.sql)
+CREATE TABLE IF NOT EXISTS attendances (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  student_id BIGINT UNSIGNED NOT NULL,
+  school_class_id BIGINT UNSIGNED NOT NULL,
+  date DATE NOT NULL,
+  status ENUM('present','absent','retard','excuse') NOT NULL DEFAULT 'present',
+  comment VARCHAR(255) NULL,
+  recorded_by_user_id BIGINT UNSIGNED NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_att_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  CONSTRAINT fk_att_class FOREIGN KEY (school_class_id) REFERENCES school_classes(id) ON DELETE CASCADE,
+  CONSTRAINT fk_att_user FOREIGN KEY (recorded_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+  UNIQUE KEY uq_att_student_date (student_id, date)
+) ENGINE=InnoDB;
 
---
--- AUTO_INCREMENT for table `villenaissance`
---
-ALTER TABLE `villenaissance`
-  MODIFY `idVille` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+CREATE TABLE IF NOT EXISTS retards (
+  id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  matricule INT(11) NOT NULL,
+  date DATETIME NOT NULL,
+  duree INT(11) DEFAULT NULL COMMENT 'en minutes',
+  motif VARCHAR(255) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  CONSTRAINT fk_retard_eleve FOREIGN KEY (matricule) REFERENCES eleves(matricule)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Constraints for dumped tables
---
+-- ================================================================
+-- 18. FRAIS SCOLAIRES / PAIEMENTS (from schema.sql)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS fee_types (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(30) NOT NULL UNIQUE,
+  name VARCHAR(80) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
 
---
--- Constraints for table `anneeacademique`
---
-ALTER TABLE `anneeacademique`
-  ADD CONSTRAINT `anneeacademique_ibfk_1` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`);
-
---
--- Constraints for table `bulletins`
---
-ALTER TABLE `bulletins`
-  ADD CONSTRAINT `bulletins_ibfk_1` FOREIGN KEY (`matricule`) REFERENCES `eleves` (`matricule`),
-  ADD CONSTRAINT `bulletins_ibfk_2` FOREIGN KEY (`idSequence`) REFERENCES `sequences` (`idSequence`);
-
---
--- Constraints for table `classes`
---
-ALTER TABLE `classes`
-  ADD CONSTRAINT `classes_ibfk_1` FOREIGN KEY (`idCycle`) REFERENCES `cycle` (`idCycle`),
-  ADD CONSTRAINT `classes_ibfk_2` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`);
-
---
--- Constraints for table `eleves`
---
-ALTER TABLE `eleves`
-  ADD CONSTRAINT `eleves_ibfk_1` FOREIGN KEY (`idVilleNaissance`) REFERENCES `villenaissance` (`idVille`),
-  ADD CONSTRAINT `eleves_ibfk_2` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`);
-
---
--- Constraints for table `incidents`
---
-ALTER TABLE `incidents`
-  ADD CONSTRAINT `incidents_ibfk_1` FOREIGN KEY (`matricule`) REFERENCES `eleves` (`matricule`),
-  ADD CONSTRAINT `incidents_ibfk_2` FOREIGN KEY (`idAnnee`) REFERENCES `anneeacademique` (`idAnnee`),
-  ADD CONSTRAINT `incidents_ibfk_3` FOREIGN KEY (`idPers`) REFERENCES `personne` (`idPers`);
-
---
--- Constraints for table `matieres`
---
-ALTER TABLE `matieres`
-  ADD CONSTRAINT `matieres_ibfk_1` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`);
-
---
--- Constraints for table `notes`
---
-ALTER TABLE `notes`
-  ADD CONSTRAINT `notes_ibfk_1` FOREIGN KEY (`matricule`) REFERENCES `eleves` (`matricule`),
-  ADD CONSTRAINT `notes_ibfk_2` FOREIGN KEY (`idEpreuve`) REFERENCES `epreuve` (`idEpreuve`),
-  ADD CONSTRAINT `notes_ibfk_3` FOREIGN KEY (`idMatiere`) REFERENCES `matieres` (`idMatiere`),
-  ADD CONSTRAINT `notes_ibfk_4` FOREIGN KEY (`idSequence`) REFERENCES `sequences` (`idSequence`),
-  ADD CONSTRAINT `notes_ibfk_5` FOREIGN KEY (`idPers`) REFERENCES `personne` (`idPers`);
-
---
--- Constraints for table `parents`
---
-ALTER TABLE `parents`
-  ADD CONSTRAINT `parents_ibfk_1` FOREIGN KEY (`idPers`) REFERENCES `personne` (`idPers`),
-  ADD CONSTRAINT `parents_ibfk_2` FOREIGN KEY (`matricule`) REFERENCES `eleves` (`matricule`),
-  ADD CONSTRAINT `parents_ibfk_3` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`);
-
---
--- Constraints for table `presences`
---
-ALTER TABLE `presences`
-  ADD CONSTRAINT `presences_ibfk_1` FOREIGN KEY (`matricule`) REFERENCES `eleves` (`matricule`);
-
---
--- Constraints for table `retards`
---
-ALTER TABLE `retards`
-  ADD CONSTRAINT `retards_ibfk_1` FOREIGN KEY (`matricule`) REFERENCES `eleves` (`matricule`);
-
---
--- Constraints for table `sanctions`
---
-ALTER TABLE `sanctions`
-  ADD CONSTRAINT `sanctions_ibfk_1` FOREIGN KEY (`incident_id`) REFERENCES `incidents` (`id`);
-
---
--- Constraints for table `sequences`
---
-ALTER TABLE `sequences`
-  ADD CONSTRAINT `sequences_ibfk_1` FOREIGN KEY (`idTrimestre`) REFERENCES `trimestre` (`idTrimes`),
-  ADD CONSTRAINT `sequences_ibfk_2` FOREIGN KEY (`idPers`) REFERENCES `personne` (`idPers`);
-
---
--- Constraints for table `trimestre`
---
-ALTER TABLE `trimestre`
-  ADD CONSTRAINT `trimestre_ibfk_1` FOREIGN KEY (`idAca`) REFERENCES `anneeacademique` (`idAnnee`),
-  ADD CONSTRAINT `trimestre_ibfk_2` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`);
-
---
--- Constraints for table `userroles`
---
-ALTER TABLE `userroles`
-  ADD CONSTRAINT `userroles_ibfk_1` FOREIGN KEY (`UserId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `userroles_ibfk_2` FOREIGN KEY (`RoleId`) REFERENCES `roles` (`id`) ON DELETE CASCADE;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+CREATE TABLE IF NOT EXISTS fee_schedules (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  school
