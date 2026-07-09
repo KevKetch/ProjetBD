@@ -6,6 +6,8 @@ module.exports = (sequelize) => {
       // Pas de FK vers Classes dans la table Eleves du professeur
       // La liaison Eleve ↔ Parent se fait via 'matricule' dans la table Parents
       this.hasMany(models.Parent, { foreignKey: 'matricule', sourceKey: 'matricule', as: 'Parents' });
+      // Ajouté avec le module paiement (Eleve n'avait aucune liaison financière)
+      this.hasMany(models.Paiement, { foreignKey: 'matricule', sourceKey: 'matricule', as: 'Paiements' });
     }
   }
 
