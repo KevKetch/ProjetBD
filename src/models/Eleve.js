@@ -44,7 +44,7 @@ module.exports = (sequelize) => {
     },
     classe_id: {
       type: DataTypes.INTEGER,
-      field: 'langue',
+      field: 'idClasse',
       allowNull: true,
       get() {
         const val = this.getDataValue('classe_id');

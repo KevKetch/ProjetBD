@@ -19,7 +19,7 @@ module.exports = (sequelize) => {
       });
 
       // Une matière peut avoir plusieurs épreuves
-      this.hasMany(models.Examen, {
+      this.hasMany(models.Epreuve, {
         as: 'examens',
         foreignKey: 'matiere_id'
       });

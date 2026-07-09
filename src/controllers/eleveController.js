@@ -44,7 +44,7 @@ exports.listEleves = async (req, res) => {
       const mat = eleve.getDataValue('matricule');
       const [parentRows] = await Eleve.sequelize.query(`
         SELECT p.nom, p.prenom, a.username AS email, a.mobile AS tel
-        FROM Parents pr
+        FROM parent pr
         INNER JOIN Personne p ON pr.idPers = p.idPers
         LEFT JOIN Admin a ON a.typeAdmin = 5 AND (
           a.nom = CONCAT(p.prenom, ' ', p.nom) OR
@@ -72,7 +72,7 @@ exports.listEleves = async (req, res) => {
 
 /* ─────────────────────────────────────────────────────────────────────────
    Détail d'un élève
-───────────────────────────────────────────────────────────────────────── */
+   ───────────────────────────────────────────────────────────────────────── */
 exports.getEleve = async (req, res) => {
   try {
     const matricule = parseMatricule(req.params.matricule);
@@ -81,7 +81,7 @@ exports.getEleve = async (req, res) => {
 
     const [parentRows] = await Eleve.sequelize.query(`
       SELECT p.nom, p.prenom, a.username AS email, a.mobile AS tel
-      FROM Parents pr
+      FROM parent pr
       INNER JOIN Personne p ON pr.idPers = p.idPers
       LEFT JOIN Admin a ON a.typeAdmin = 5 AND (
         a.nom = CONCAT(p.prenom, ' ', p.nom) OR
@@ -106,7 +106,7 @@ exports.getEleve = async (req, res) => {
 
 /* ─────────────────────────────────────────────────────────────────────────
    Créer un élève  (+ Personne + Parents + compte Admin parent)
-───────────────────────────────────────────────────────────────────────── */
+   ───────────────────────────────────────────────────────────────────────── */
 exports.createEleve = async (req, res) => {
   const transaction = await Eleve.sequelize.transaction();
   try {
@@ -136,20 +136,20 @@ exports.createEleve = async (req, res) => {
 
       // ── 1. Insérer dans Personne ───────────────────────────────
       const [personneResult] = await Eleve.sequelize.query(
-        `INSERT INTO Personne (nom, prenom) VALUES (?, ?)`,
+        `INSERT INTO personne (nom, prenom) VALUES (?, ?)`,
         { replacements: [parentNom, parentPrenom], type: Eleve.sequelize.QueryTypes.INSERT, transaction }
       );
       const idPers = typeof personneResult === 'object' ? personneResult[0] : personneResult;
 
-      // ── 2. Lier dans Parents ───────────────────────────────────
+      // ── 2. Lier dans parent ───────────────────────────────────
       await Eleve.sequelize.query(
-        `INSERT INTO Parents (idPers, matricule, idAdmin) VALUES (?, ?, ?)`,
+        `INSERT INTO parent (idPers, matricule, idAdmin) VALUES (?, ?, ?)`,
         { replacements: [idPers, matricule, req.body.idAdmin || 1], type: Eleve.sequelize.QueryTypes.INSERT, transaction }
       );
 
       // ── 3. Créer compte Admin (typeAdmin=5) si inexistant ──────
       const [existingRows] = await Eleve.sequelize.query(
-        `SELECT ID FROM Admin WHERE username = ? LIMIT 1`,
+        `SELECT ID FROM admin WHERE username = ? LIMIT 1`,
         { replacements: [parentEmail], type: Eleve.sequelize.QueryTypes.SELECT, transaction }
       );
       // existingRows est un tableau (potentiellement vide)

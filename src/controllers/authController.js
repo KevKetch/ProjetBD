@@ -144,3 +144,82 @@ exports.updateProfile = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Erreur serveur', detail: err.message });
   }
 };
+
+exports.listUsers = async (req, res) => {
+  try {
+    const admins = await Admin.findAll({
+      order: [['nom', 'ASC']],
+    });
+    const users = admins.map(a => {
+      const role = TYPE_TO_ROLE[a.typeAdmin] || 'admin';
+      return {
+        id: `admin-${a.ID}`,
+        nom: a.nom,
+        prenom: '',
+        email: a.username,
+        role: role,
+        actif: !!a.actif,
+        telephone: a.mobile || ''
+      };
+    });
+    res.json(users);
+  } catch (err) {
+    console.error('[authController.listUsers]', err);
+    res.status(500).json({ success: false, message: 'Erreur serveur', detail: err.message });
+  }
+};
+
+exports.createUser = async (req, res) => {
+  try {
+    const { nom, prenom, email, telephone, motDePasse, role } = req.body;
+    const ROLE_TO_TYPE = {
+      'fondateur': 1,
+      'directeur': 2,
+      'admin': 3,
+      'enseignant': 4,
+      'parent': 5
+    };
+    const typeAdmin = ROLE_TO_TYPE[role] || 3;
+    const bcrypt = require('bcryptjs');
+    const pwd = motDePasse || '1234';
+    const hashedPassword = await bcrypt.hash(pwd, 10);
+    const nomComplet = `${prenom || ''} ${nom || ''}`.trim();
+
+    const admin = await Admin.create({
+      nom: nomComplet,
+      username: email,
+      password: hashedPassword,
+      typeAdmin: typeAdmin,
+      mobile: telephone,
+      actif: 1
+    });
+
+    res.status(201).json({
+      id: `admin-${admin.ID}`,
+      nom: admin.nom,
+      prenom: '',
+      email: admin.username,
+      role: role,
+      actif: true
+    });
+  } catch (err) {
+    console.error('[authController.createUser]', err);
+    res.status(500).json({ success: false, message: 'Erreur lors de la création', detail: err.message });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const idStr = req.params.id;
+    const numericId = parseInt(idStr.replace('admin-', ''), 10);
+    const admin = await Admin.findByPk(numericId);
+    if (!admin) {
+      return res.status(404).json({ success: false, message: 'Utilisateur introuvable' });
+    }
+    await admin.update({ actif: 0 });
+    res.json({ success: true, message: 'Utilisateur désactivé' });
+  } catch (err) {
+    console.error('[authController.deleteUser]', err);
+    res.status(500).json({ success: false, message: 'Erreur lors de la désactivation' });
+  }
+};

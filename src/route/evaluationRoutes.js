@@ -3,7 +3,7 @@ const router = require('express').Router();
 const { authenticate, checkRole } = require('../middlewares/auth');
 const { validate } = require('../middlewares/validation');
 const Joi = require('joi');
-const examController = require('../controllers/examController');
+const examController = require('../controllers/evaluationController');
 const multer = require('multer');
 const path = require('path');
 
