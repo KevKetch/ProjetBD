@@ -9,6 +9,7 @@ const matiereRoutes    = require('./matiereRoutes');
 const sequenceRoutes   = require('./sequenceRoutes');
 const enseignantRoutes = require('./enseignantRoutes');
 const paiementRoutes   = require('./paiementRoutes');
+const messageRoutes    = require('./messageRoutes');
 
 router.use('/auth',       authRoutes);
 router.use('/eleves',     eleveRoutes);
@@ -20,5 +21,6 @@ router.use('/matieres',   matiereRoutes);
 router.use('/sequences',  sequenceRoutes);
 router.use('/enseignants', enseignantRoutes);
 router.use('/paiements',  paiementRoutes);
+router.use('/messages',    messageRoutes);
 
 module.exports = router;
