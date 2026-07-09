@@ -1,6 +1,6 @@
 -- ================================================================
 -- DATABASE: ecole_etoiles
--- Single coherent schema based on the MCD from your PDF
+-- Complete Updated Schema - All Tables
 -- ================================================================
 
 SET NAMES utf8mb4;
@@ -23,7 +23,9 @@ INSERT INTO `ville` (`idVille`, `nomVille`) VALUES
 (5, 'Kribi'),
 (6, 'Ebolowa'),
 (7, 'Garoua'),
-(8, 'Maroua');
+(8, 'Maroua'),
+(9, 'Ngaoundéré'),
+(10, 'Bertoua');
 
 -- ================================================================
 -- 2. ADMIN (Administrator / User Account)
@@ -37,8 +39,11 @@ CREATE TABLE IF NOT EXISTS `admin` (
   `typeAdmin` SMALLINT(6) NOT NULL COMMENT '1=superadmin,2=directeur,3=admin,4=enseignant,5=parent',
   `mobile` VARCHAR(15) DEFAULT NULL,
   `alanyaID` VARCHAR(15) DEFAULT NULL,
+  `idPers` INT(11) DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
-  PRIMARY KEY (`ID`)
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`ID`),
+  CONSTRAINT `fk_admin_personne` FOREIGN KEY (`idPers`) REFERENCES `personne` (`idPers`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
@@ -53,6 +58,7 @@ CREATE TABLE IF NOT EXISTS `personne` (
   `sexe` CHAR(1) DEFAULT NULL COMMENT 'M/F',
   `adresse` VARCHAR(255) DEFAULT NULL,
   `telephone` VARCHAR(20) DEFAULT NULL,
+  `email` VARCHAR(100) DEFAULT NULL,
   `photoURL` VARCHAR(255) DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
@@ -60,14 +66,22 @@ CREATE TABLE IF NOT EXISTS `personne` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 4. ADMIN_PERSONNE (Link Admin to Personne)
+-- 4. USER (Authentication - new schema)
 -- ================================================================
-CREATE TABLE IF NOT EXISTS `admin_personne` (
-  `idAdmin` INT(11) NOT NULL,
-  `idPers` INT(11) NOT NULL,
-  PRIMARY KEY (`idAdmin`, `idPers`),
-  CONSTRAINT `fk_ap_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE CASCADE,
-  CONSTRAINT `fk_ap_personne` FOREIGN KEY (`idPers`) REFERENCES `personne` (`idPers`) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS `user` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `person_id` INT(11) DEFAULT NULL,
+  `email` VARCHAR(150) NOT NULL UNIQUE,
+  `username` VARCHAR(80) DEFAULT NULL UNIQUE,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `role` ENUM('admin','directeur','fondateur','enseignant','parent') NOT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `last_login_at` DATETIME DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  `deleted_at` DATETIME DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_user_personne` FOREIGN KEY (`person_id`) REFERENCES `personne` (`idPers`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
@@ -79,6 +93,7 @@ CREATE TABLE IF NOT EXISTS `annee_academique` (
   `periode` VARCHAR(100) DEFAULT NULL,
   `idAdmin` INT(11) DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`idAnnee`),
   CONSTRAINT `fk_aa_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -96,6 +111,7 @@ CREATE TABLE IF NOT EXISTS `trimestre` (
   `idAca` INT(11) DEFAULT NULL,
   `idAdmin` INT(11) DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`idTrimes`),
   CONSTRAINT `fk_trim_annee` FOREIGN KEY (`idAca`) REFERENCES `annee_academique` (`idAnnee`) ON DELETE CASCADE,
   CONSTRAINT `fk_trim_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE SET NULL
@@ -141,6 +157,7 @@ CREATE TABLE IF NOT EXISTS `salle` (
   `libelle` VARCHAR(50) NOT NULL,
   `capacite` INT(11) DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`idSalle`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -181,6 +198,7 @@ CREATE TABLE IF NOT EXISTS `eleve` (
   `actif` TINYINT(4) DEFAULT 1,
   `statut` ENUM('actif','inactif','transfere','diplome','radie') DEFAULT 'actif',
   `date_inscription` DATE DEFAULT NULL,
+  `niveau` ENUM('PS','MS','GS','SIL','CP','CE1','CE2','CM1','CM2') DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   `deleted_at` DATETIME DEFAULT NULL,
@@ -199,6 +217,7 @@ CREATE TABLE IF NOT EXISTS `parent` (
   `idPers` INT(11) NOT NULL,
   `matricule` INT(11) NOT NULL,
   `idAdmin` INT(11) DEFAULT NULL,
+  `user_id` INT(11) DEFAULT NULL,
   `relation` ENUM('pere','mere','tuteur') DEFAULT 'tuteur',
   `is_primary` TINYINT(1) DEFAULT 0,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
@@ -206,7 +225,8 @@ CREATE TABLE IF NOT EXISTS `parent` (
   PRIMARY KEY (`idParent`),
   CONSTRAINT `fk_parent_personne` FOREIGN KEY (`idPers`) REFERENCES `personne` (`idPers`) ON DELETE CASCADE,
   CONSTRAINT `fk_parent_eleve` FOREIGN KEY (`matricule`) REFERENCES `eleve` (`matricule`) ON DELETE CASCADE,
-  CONSTRAINT `fk_parent_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE SET NULL
+  CONSTRAINT `fk_parent_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE SET NULL,
+  CONSTRAINT `fk_parent_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
@@ -220,27 +240,32 @@ CREATE TABLE IF NOT EXISTS `enseignant` (
   `date_embauche` DATE DEFAULT NULL,
   `telephone` VARCHAR(20) DEFAULT NULL,
   `idAdmin` INT(11) DEFAULT NULL,
+  `user_id` INT(11) DEFAULT NULL,
   `actif` TINYINT(4) DEFAULT 1,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`idEnseignant`),
   CONSTRAINT `fk_ens_personne` FOREIGN KEY (`idPers`) REFERENCES `personne` (`idPers`) ON DELETE CASCADE,
-  CONSTRAINT `fk_ens_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE SET NULL
+  CONSTRAINT `fk_ens_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE SET NULL,
+  CONSTRAINT `fk_enseignant_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
 -- 14. ENSEIGNER (Teach - Class Teacher Assignment)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `enseigner` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
   `idEnseignant` INT(11) NOT NULL,
   `idClasse` INT(11) NOT NULL,
   `idAnnee` INT(11) NOT NULL,
   `is_principal` TINYINT(1) DEFAULT 0,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
-  PRIMARY KEY (`idEnseignant`, `idClasse`, `idAnnee`),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
   CONSTRAINT `fk_ens_enseignant` FOREIGN KEY (`idEnseignant`) REFERENCES `enseignant` (`idEnseignant`) ON DELETE CASCADE,
   CONSTRAINT `fk_ens_classe` FOREIGN KEY (`idClasse`) REFERENCES `classe` (`idClasse`) ON DELETE CASCADE,
-  CONSTRAINT `fk_ens_annee` FOREIGN KEY (`idAnnee`) REFERENCES `annee_academique` (`idAnnee`) ON DELETE CASCADE
+  CONSTRAINT `fk_ens_annee` FOREIGN KEY (`idAnnee`) REFERENCES `annee_academique` (`idAnnee`) ON DELETE CASCADE,
+  UNIQUE KEY `uq_enseigner` (`idEnseignant`, `idClasse`, `idAnnee`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
@@ -249,7 +274,7 @@ CREATE TABLE IF NOT EXISTS `enseigner` (
 CREATE TABLE IF NOT EXISTS `matiere` (
   `idMatiere` INT(11) NOT NULL AUTO_INCREMENT,
   `libelle` VARCHAR(255) NOT NULL,
-  `code` VARCHAR(20) DEFAULT NULL,
+  `code` VARCHAR(20) DEFAULT NULL UNIQUE,
   `description` TEXT DEFAULT NULL,
   `coefficient` FLOAT DEFAULT 1,
   `idAdmin` INT(11) DEFAULT NULL,
@@ -260,24 +285,44 @@ CREATE TABLE IF NOT EXISTS `matiere` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 16. ENSEIGNER_MATIERE (Teacher teaches Subject)
+-- 16. MATIERE_CLASSE (Junction table - Subject assigned to Class)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS `matiere_classe` (
+  `matiere_id` INT(11) NOT NULL,
+  `classe_id` INT(11) NOT NULL,
+  `coefficient` FLOAT DEFAULT 1,
+  `enseignant_id` INT(11) DEFAULT NULL,
+  `is_active` TINYINT(1) DEFAULT 1,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`matiere_id`, `classe_id`),
+  CONSTRAINT `fk_mc_matiere` FOREIGN KEY (`matiere_id`) REFERENCES `matiere` (`idMatiere`) ON DELETE CASCADE,
+  CONSTRAINT `fk_mc_classe` FOREIGN KEY (`classe_id`) REFERENCES `classe` (`idClasse`) ON DELETE CASCADE,
+  CONSTRAINT `fk_mc_enseignant` FOREIGN KEY (`enseignant_id`) REFERENCES `enseignant` (`idEnseignant`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ================================================================
+-- 17. ENSEIGNER_MATIERE (Teacher teaches Subject)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `enseigner_matiere` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
   `idEnseignant` INT(11) NOT NULL,
   `idMatiere` INT(11) NOT NULL,
   `idClasse` INT(11) NOT NULL,
   `idAnnee` INT(11) NOT NULL,
   `coefficient` FLOAT DEFAULT 1,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
-  PRIMARY KEY (`idEnseignant`, `idMatiere`, `idClasse`, `idAnnee`),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
   CONSTRAINT `fk_em_enseignant` FOREIGN KEY (`idEnseignant`) REFERENCES `enseignant` (`idEnseignant`) ON DELETE CASCADE,
   CONSTRAINT `fk_em_matiere` FOREIGN KEY (`idMatiere`) REFERENCES `matiere` (`idMatiere`) ON DELETE CASCADE,
   CONSTRAINT `fk_em_classe` FOREIGN KEY (`idClasse`) REFERENCES `classe` (`idClasse`) ON DELETE CASCADE,
-  CONSTRAINT `fk_em_annee` FOREIGN KEY (`idAnnee`) REFERENCES `annee_academique` (`idAnnee`) ON DELETE CASCADE
+  CONSTRAINT `fk_em_annee` FOREIGN KEY (`idAnnee`) REFERENCES `annee_academique` (`idAnnee`) ON DELETE CASCADE,
+  UNIQUE KEY `uq_enseigner_matiere` (`idEnseignant`, `idMatiere`, `idClasse`, `idAnnee`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 17. FREQUENTE (Student attends Class)
+-- 18. FREQUENTE (Student attends Class)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `frequente` (
   `matricule` INT(11) NOT NULL,
@@ -286,6 +331,7 @@ CREATE TABLE IF NOT EXISTS `frequente` (
   `date_debut` DATE DEFAULT NULL,
   `date_fin` DATE DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`matricule`, `idClasse`, `idAnnee`),
   CONSTRAINT `fk_freq_eleve` FOREIGN KEY (`matricule`) REFERENCES `eleve` (`matricule`) ON DELETE CASCADE,
   CONSTRAINT `fk_freq_classe` FOREIGN KEY (`idClasse`) REFERENCES `classe` (`idClasse`) ON DELETE CASCADE,
@@ -293,7 +339,7 @@ CREATE TABLE IF NOT EXISTS `frequente` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 18. NATURE_EPREUVE (Exam Type)
+-- 19. NATURE_EPREUVE (Exam Type)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `nature_epreuve` (
   `idNature` INT(11) NOT NULL AUTO_INCREMENT,
@@ -315,7 +361,7 @@ INSERT INTO `nature_epreuve` (`code`, `libelle`, `description`, `coefficient`) V
 ('TP', 'Travaux Pratiques', 'Travaux pratiques', 1.0);
 
 -- ================================================================
--- 19. EPREUVE (Exam)
+-- 20. EPREUVE (Exam)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `epreuve` (
   `idEpreuve` INT(11) NOT NULL AUTO_INCREMENT,
@@ -348,7 +394,7 @@ CREATE TABLE IF NOT EXISTS `epreuve` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 20. EPREUVE_NOTE (Exam Grade)
+-- 21. EPREUVE_NOTE (Exam Grade)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `epreuve_note` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -365,7 +411,7 @@ CREATE TABLE IF NOT EXISTS `epreuve_note` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 21. NOTE (Grade - keeps historical record)
+-- 22. NOTE (Grade - keeps historical record)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `note` (
   `idNote` INT(11) NOT NULL AUTO_INCREMENT,
@@ -387,7 +433,7 @@ CREATE TABLE IF NOT EXISTS `note` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 22. BULLETIN (Report Card)
+-- 23. BULLETIN (Report Card)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `bulletin` (
   `idBulletin` INT(11) NOT NULL AUTO_INCREMENT,
@@ -416,7 +462,7 @@ CREATE TABLE IF NOT EXISTS `bulletin` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 23. BULLETIN_LIGNE (Report Card Line)
+-- 24. BULLETIN_LIGNE (Report Card Line)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `bulletin_ligne` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -426,13 +472,14 @@ CREATE TABLE IF NOT EXISTS `bulletin_ligne` (
   `coefficient` FLOAT DEFAULT 1,
   `appreciation` VARCHAR(255) DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_bl_bulletin` FOREIGN KEY (`idBulletin`) REFERENCES `bulletin` (`idBulletin`) ON DELETE CASCADE,
   CONSTRAINT `fk_bl_matiere` FOREIGN KEY (`idMatiere`) REFERENCES `matiere` (`idMatiere`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 24. PRESENCE (Attendance)
+-- 25. PRESENCE (Attendance)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `presence` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -450,7 +497,22 @@ CREATE TABLE IF NOT EXISTS `presence` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 25. TYPE_INCIDENT (Incident Type)
+-- 26. RETARD (Tardiness)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS `retard` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `matricule` INT(11) NOT NULL,
+  `date` DATETIME NOT NULL,
+  `duree` INT(11) DEFAULT NULL COMMENT 'en minutes',
+  `motif` VARCHAR(255) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_retard_eleve` FOREIGN KEY (`matricule`) REFERENCES `eleve` (`matricule`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ================================================================
+-- 27. TYPE_INCIDENT (Incident Type)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `type_incident` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -470,7 +532,7 @@ INSERT INTO `type_incident` (`nom`, `description`) VALUES
 ('Autre', 'Autre type d\'incident');
 
 -- ================================================================
--- 26. INCIDENT (Disciplinary Incident)
+-- 28. INCIDENT (Disciplinary Incident)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `incident` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -492,7 +554,7 @@ CREATE TABLE IF NOT EXISTS `incident` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 27. SANCTION (Punishment)
+-- 29. SANCTION (Punishment)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `sanction` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -507,7 +569,7 @@ CREATE TABLE IF NOT EXISTS `sanction` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 28. FRAIS (Fee Type)
+-- 30. FRAIS (Fee Type)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `frais` (
   `idFrais` INT(11) NOT NULL AUTO_INCREMENT,
@@ -515,6 +577,7 @@ CREATE TABLE IF NOT EXISTS `frais` (
   `libelle` VARCHAR(80) NOT NULL,
   `description` TEXT DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`idFrais`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -524,7 +587,7 @@ INSERT INTO `frais` (`code`, `libelle`, `description`) VALUES
 ('TRANSPORT', 'Transport', 'Frais de transport scolaire');
 
 -- ================================================================
--- 29. ECHEANCIER (Fee Schedule / Tranche)
+-- 31. ECHEANCIER (Fee Schedule / Tranche)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `echeancier` (
   `idEcheancier` INT(11) NOT NULL AUTO_INCREMENT,
@@ -535,36 +598,44 @@ CREATE TABLE IF NOT EXISTS `echeancier` (
   `idFrais` INT(11) NOT NULL,
   `idAnnee` INT(11) NOT NULL,
   `niveau` ENUM('PS','MS','GS','SIL','CP','CE1','CE2','CM1','CM2') DEFAULT NULL,
+  `description` TEXT DEFAULT NULL,
+  `is_active` TINYINT(1) DEFAULT 1,
+  `idAdmin` INT(11) DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`idEcheancier`),
   CONSTRAINT `fk_ech_frais` FOREIGN KEY (`idFrais`) REFERENCES `frais` (`idFrais`) ON DELETE CASCADE,
-  CONSTRAINT `fk_ech_annee` FOREIGN KEY (`idAnnee`) REFERENCES `annee_academique` (`idAnnee`) ON DELETE CASCADE
+  CONSTRAINT `fk_ech_annee` FOREIGN KEY (`idAnnee`) REFERENCES `annee_academique` (`idAnnee`) ON DELETE CASCADE,
+  CONSTRAINT `fk_echeancier_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 30. PAIEMENT (Payment)
+-- 32. PAIEMENT (Payment)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `paiement` (
   `idPaiement` INT(11) NOT NULL AUTO_INCREMENT,
+  `matricule` INT(11) NOT NULL,
+  `idAnnee` INT(11) NOT NULL,
+  `idEcheancier` INT(11) DEFAULT NULL,
+  `idAdmin` INT(11) DEFAULT NULL,
   `montant` DECIMAL(10,2) NOT NULL,
   `mode_paiement` ENUM('especes','mobile_money','virement','cheque') DEFAULT 'especes',
   `statut` ENUM('paye','partiel','annule') DEFAULT 'paye',
   `numero_recu` VARCHAR(50) NOT NULL UNIQUE,
-  `date_paiement` DATE NOT NULL,
+  `operation_ID` VARCHAR(50) DEFAULT NULL,
   `commentaire` VARCHAR(255) DEFAULT NULL,
-  `matricule` INT(11) NOT NULL,
-  `idEcheancier` INT(11) DEFAULT NULL,
-  `idAdmin` INT(11) DEFAULT NULL,
+  `date_paiement` DATE NOT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`idPaiement`),
   CONSTRAINT `fk_paiement_eleve` FOREIGN KEY (`matricule`) REFERENCES `eleve` (`matricule`) ON DELETE CASCADE,
   CONSTRAINT `fk_paiement_echeancier` FOREIGN KEY (`idEcheancier`) REFERENCES `echeancier` (`idEcheancier`) ON DELETE SET NULL,
+  CONSTRAINT `fk_paiement_annee` FOREIGN KEY (`idAnnee`) REFERENCES `annee_academique` (`idAnnee`) ON DELETE CASCADE,
   CONSTRAINT `fk_paiement_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 31. EMPLOI_DU_TEMPS (Timetable)
+-- 33. EMPLOI_DU_TEMPS (Timetable)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `emploi_du_temps` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -581,11 +652,12 @@ CREATE TABLE IF NOT EXISTS `emploi_du_temps` (
   CONSTRAINT `fk_edt_classe` FOREIGN KEY (`idClasse`) REFERENCES `classe` (`idClasse`) ON DELETE CASCADE,
   CONSTRAINT `fk_edt_matiere` FOREIGN KEY (`idMatiere`) REFERENCES `matiere` (`idMatiere`) ON DELETE CASCADE,
   CONSTRAINT `fk_edt_enseignant` FOREIGN KEY (`idEnseignant`) REFERENCES `enseignant` (`idEnseignant`) ON DELETE CASCADE,
-  CONSTRAINT `fk_edt_annee` FOREIGN KEY (`idAnnee`) REFERENCES `annee_academique` (`idAnnee`) ON DELETE CASCADE
+  CONSTRAINT `fk_edt_annee` FOREIGN KEY (`idAnnee`) REFERENCES `annee_academique` (`idAnnee`) ON DELETE CASCADE,
+  UNIQUE KEY `uq_edt_classe_jour_heure` (`idClasse`, `jour`, `heure_debut`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 32. MESSAGE (Internal Messaging)
+-- 34. MESSAGE (Internal Messaging)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `message` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -598,18 +670,18 @@ CREATE TABLE IF NOT EXISTS `message` (
   `idExpediteur` INT(11) NOT NULL,
   `idDestinataire` INT(11) NOT NULL,
   `idParent` INT(11) DEFAULT NULL,
-  `idAdmin` INT(11) DEFAULT NULL,
   `reponse_a_id` INT(11) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_msg_expediteur` FOREIGN KEY (`idExpediteur`) REFERENCES `admin` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `fk_msg_destinataire` FOREIGN KEY (`idDestinataire`) REFERENCES `admin` (`ID`) ON DELETE CASCADE,
   CONSTRAINT `fk_msg_parent` FOREIGN KEY (`idParent`) REFERENCES `parent` (`idParent`) ON DELETE SET NULL,
-  CONSTRAINT `fk_msg_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE SET NULL,
   CONSTRAINT `fk_msg_reponse` FOREIGN KEY (`reponse_a_id`) REFERENCES `message` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 33. BANQUE_EPREUVES (Exam Bank - for storing shared exams)
+-- 35. BANQUE_EPREUVES (Exam Bank)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `banque_epreuves` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -626,7 +698,7 @@ CREATE TABLE IF NOT EXISTS `banque_epreuves` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- 34. CONFIG (System Configuration)
+-- 36. CONFIG (System Configuration)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS `config` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -649,8 +721,9 @@ INSERT INTO `config` (`cle`, `valeur`, `description`) VALUES
 ('frais_transport', '15000', 'Frais de transport annuel par défaut');
 
 -- ================================================================
--- 35. LOG_ACTIONS (Audit Log)
+-- 37. LOG_ACTIONS (Audit Trail)
 -- ================================================================
+
 CREATE TABLE IF NOT EXISTS `log_actions` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `action` VARCHAR(100) NOT NULL,
@@ -665,5 +738,98 @@ CREATE TABLE IF NOT EXISTS `log_actions` (
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_log_admin` FOREIGN KEY (`idAdmin`) REFERENCES `admin` (`ID`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ================================================================
+-- MESSAGING MODULE - Database Updates
+-- Execute this to update your existing database
+-- ================================================================
+
+-- 1. Add new columns to messages table
+ALTER TABLE `messages` 
+ADD COLUMN `sujet` VARCHAR(255) DEFAULT 'Message' AFTER `destinataire_id`,
+ADD COLUMN `type` ENUM('general','urgence','reclamation','notification') DEFAULT 'general' AFTER `corps`,
+ADD COLUMN `lu_at` DATETIME DEFAULT NULL AFTER `lu`,
+ADD COLUMN `parent_id` INT(11) DEFAULT NULL AFTER `lu_at`,
+ADD COLUMN `reponse_a_id` INT(11) DEFAULT NULL AFTER `parent_id`,
+ADD INDEX `idx_msg_parent` (`parent_id`),
+ADD INDEX `idx_msg_reponse` (`reponse_a_id`),
+ADD CONSTRAINT `fk_msg_parent` FOREIGN KEY (`parent_id`) REFERENCES `parents` (`idParent`) ON DELETE SET NULL,
+ADD CONSTRAINT `fk_msg_reponse` FOREIGN KEY (`reponse_a_id`) REFERENCES `messages` (`id`) ON DELETE SET NULL;
+
+-- 2. Create notifications table
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) NOT NULL,
+  `type` ENUM('payment_due','payment_overdue','new_message','exam_published','grade_published','incident','system') NOT NULL,
+  `titre` VARCHAR(255) NOT NULL,
+  `message` TEXT NOT NULL,
+  `lien` VARCHAR(255) DEFAULT NULL,
+  `lu` TINYINT(1) DEFAULT 0,
+  `lu_at` DATETIME DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_notif_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  INDEX `idx_notif_user` (`user_id`),
+  INDEX `idx_notif_lu` (`lu`),
+  INDEX `idx_notif_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- ================================================================
+-- 38. PERFORMANCE INDEXES
+-- ================================================================
+
+-- Payment indexes
+CREATE INDEX idx_paiement_matricule ON paiement(matricule);
+CREATE INDEX idx_paiement_idAnnee ON paiement(idAnnee);
+CREATE INDEX idx_paiement_idEcheancier ON paiement(idEcheancier);
+CREATE INDEX idx_paiement_statut ON paiement(statut);
+CREATE INDEX idx_paiement_date ON paiement(date_paiement);
+
+-- Exam indexes
+CREATE INDEX idx_epreuve_idMatiere ON epreuve(idMatiere);
+CREATE INDEX idx_epreuve_idClasse ON epreuve(idClasse);
+CREATE INDEX idx_epreuve_idTrimestre ON epreuve(idTrimestre);
+CREATE INDEX idx_epreuve_date ON epreuve(date_epreuve);
+CREATE INDEX idx_epreuve_idNature ON epreuve(idNature);
+
+-- Student indexes
+CREATE INDEX idx_eleve_idClasse ON eleve(idClasse);
+CREATE INDEX idx_eleve_actif ON eleve(actif);
+CREATE INDEX idx_eleve_nom ON eleve(nom);
+
+-- Note indexes
+CREATE INDEX idx_note_matricule ON note(matricule);
+CREATE INDEX idx_note_idMatiere ON note(idMatiere);
+CREATE INDEX idx_note_idSequence ON note(idSequence);
+
+-- Presence indexes
+CREATE INDEX idx_presence_matricule ON presence(matricule);
+CREATE INDEX idx_presence_date ON presence(date);
+
+-- Incident indexes
+CREATE INDEX idx_incident_matricule ON incident(matricule);
+CREATE INDEX idx_incident_idType ON incident(idTypeIncident);
+CREATE INDEX idx_incident_idAnnee ON incident(idAnnee);
+
+-- Echeancier indexes
+CREATE INDEX idx_echeancier_idAnnee ON echeancier(idAnnee);
+CREATE INDEX idx_echeancier_idFrais ON echeancier(idFrais);
+CREATE INDEX idx_echeancier_niveau ON echeancier(niveau);
+
+-- Message indexes
+CREATE INDEX idx_message_idExpediteur ON message(idExpediteur);
+CREATE INDEX idx_message_idDestinataire ON message(idDestinataire);
+CREATE INDEX idx_message_date_envoi ON message(date_envoi);
+
+-- Parent indexes
+CREATE INDEX idx_parent_matricule ON parent(matricule);
+CREATE INDEX idx_parent_idPers ON parent(idPers);
+
+-- Enseignant indexes
+CREATE INDEX idx_enseignant_idPers ON enseignant(idPers);
+CREATE INDEX idx_enseignant_matricule ON enseignant(matricule);
+
+-- Classe indexes
+CREATE INDEX idx_classe_niveau ON classe(niveau);
+CREATE INDEX idx_classe_idCycle ON classe(idCycle);
 
 SET FOREIGN_KEY_CHECKS = 1;
