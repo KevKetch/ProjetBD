@@ -1,6 +1,26 @@
 # Guide de démarrage (Collaborateur)
 
-Ce guide explique les étapes simples pour lancer le projet (Frontend et Backend) sur votre machine.
+Ce guide explique comment récupérer et lancer le projet (Frontend et Backend) sur votre machine.
+
+---
+
+## 📥 Étape 0 : Cloner les deux projets
+
+Puisque le backend et le frontend sont stockés sur des branches différentes du même dépôt GitHub, vous devez les cloner dans deux dossiers séparés :
+
+### 1. Cloner le Backend (Branche `module-assemblage`) :
+Dans votre dossier de travail, ouvrez un terminal et exécutez :
+```bash
+git clone -b module-assemblage https://github.com/KevKetch/ProjetBD.git backend-ecole
+```
+*(Cela va cloner le backend dans un dossier nommé `backend-ecole`)*
+
+### 2. Cloner le Frontend (Branche `module-assemblage-frontend`) :
+Dans le même dossier de travail, ouvrez un nouveau terminal et exécutez :
+```bash
+git clone -b module-assemblage-frontend https://github.com/KevKetch/ProjetBD.git frontend-ecole
+```
+*(Cela va cloner le frontend dans un dossier nommé `frontend-ecole`)*
 
 ---
 
